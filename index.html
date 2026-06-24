@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WRO Austria 2026 - Senior RoboMission Randomizer</title>
+  <meta name="description" content="Offizieller Zufallsgenerator fuer die WRO Austria 2026 RoboMission Senior. Official random generator for WRO Austria 2026 RoboMission Senior mosaic.">
+  <meta name="author" content="WRO Austria">
+  <link rel="icon" href="logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --blue:    #0055BF;
+      --green:   #237841;
+      --yellow:  #FFF03A;
+      --bg:      #080d1c;
+      --card:    rgba(255,255,255,0.055);
+      --card2:   rgba(255,255,255,0.025);
+      --border:  rgba(255,255,255,0.11);
+      --t1:      #eef2ff;
+      --t2:      rgba(238,242,255,0.62);
+      --t3:      rgba(238,242,255,0.38);
+      --r:       20px;
+      --tr:      0.22s cubic-bezier(.4,0,.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+    body::before,body::after{content:'';position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+    body::before{width:700px;height:700px;top:-25%;left:-15%;background:radial-gradient(circle,rgba(0,85,191,.13) 0%,transparent 70%);animation:orb1 22s ease-in-out infinite alternate}
+    body::after{width:600px;height:600px;bottom:-20%;right:-12%;background:radial-gradient(circle,rgba(35,120,65,.1) 0%,transparent 70%);animation:orb2 28s ease-in-out infinite alternate}
+    @keyframes orb1{to{transform:translate(60px,50px) scale(1.1)}}
+    @keyframes orb2{to{transform:translate(-50px,-40px) scale(1.15)}}
+
+    .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 16px 64px}
+
+    /* HEADER */
+    .hdr{width:100%;max-width:860px;padding:40px 0 24px;display:flex;flex-direction:column;align-items:center;gap:16px}
+    .hdr-logo{height:80px;object-fit:contain;filter:drop-shadow(0 6px 16px rgba(0,0,0,.5));transition:transform var(--tr)}
+    .hdr-logo:hover{transform:scale(1.04)}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,85,191,.18);border:1px solid rgba(0,85,191,.38);border-radius:999px;padding:4px 14px;font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#7ab5ff;margin-bottom:8px}
+    h1{font-size:clamp(1.5rem,5vw,2.4rem);font-weight:900;letter-spacing:-.025em;background:linear-gradient(130deg,#fff 0%,#b0d0ff 55%,#7ab5ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;text-align:center}
+    .hdr-sub{margin-top:6px;font-size:.88rem;color:var(--t2);text-align:center}
+
+    /* MAIN */
+    .main{width:100%;max-width:860px;display:flex;flex-direction:column;gap:16px}
+
+    /* CARD */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px 26px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,0,0,.35);transition:border-color var(--tr)}
+    .card:hover{border-color:rgba(255,255,255,.17)}
+    .clbl{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .clbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* BUTTONS */
+    .btn-rnd{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 32px;background:linear-gradient(135deg,#0055BF 0%,#1a6fd4 100%);border:none;border-radius:14px;color:#fff;font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all var(--tr);box-shadow:0 4px 24px rgba(0,85,191,.45);position:relative;overflow:hidden;letter-spacing:.01em}
+    .btn-rnd::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);transition:left .55s ease}
+    .btn-rnd:hover::before{left:100%}
+    .btn-rnd:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,85,191,.6)}
+    .btn-rnd:active{transform:translateY(0)}
+    .dice{font-size:1.25rem}
+    .btn-rnd.rolling .dice{animation:roll .45s ease}
+    @keyframes roll{0%{transform:rotate(0)}50%{transform:rotate(180deg) scale(.8)}100%{transform:rotate(360deg)}}
+
+    .btn-pdf{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 26px;background:var(--card2);border:1px solid var(--border);border-radius:14px;color:var(--t2);font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--tr);line-height:1.4}
+    .btn-pdf:hover{background:rgba(35,120,65,.18);border-color:rgba(35,120,65,.45);color:#75d89a;transform:translateY(-1px);box-shadow:0 4px 20px rgba(35,120,65,.28)}
+
+    /* CTRL GRID */
+    .ctrl-grid{display:grid;grid-template-columns:1fr 190px;gap:14px;align-items:start}
+    .ctrl-l{display:flex;flex-direction:column;gap:11px}
+    @media(max-width:560px){.ctrl-grid{grid-template-columns:1fr}}
+
+    .fmt-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .fmt-lbl{font-size:.79rem;color:var(--t2);font-weight:500}
+    .fmt-btns{display:flex;gap:5px}
+    .fmt-btn{background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--t2);padding:5px 13px;font-family:'Inter',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
+    .fmt-btn:hover{border-color:rgba(0,85,191,.5);color:var(--t1)}
+    .fmt-btn.on{background:rgba(0,85,191,.22);border-color:rgba(0,85,191,.55);color:#7ab5ff}
+
+    /* CODE */
+    .code-box{display:flex;align-items:center;gap:9px;background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-top:12px}
+    .code-lbl{font-size:.67rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);white-space:nowrap}
+    .code-val{flex:1;font-family:'Courier New',monospace;font-size:1.05rem;font-weight:800;letter-spacing:.2em;color:var(--t1)}
+    .copy-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--t3);padding:3px 9px;font-size:.7rem;cursor:pointer;transition:all var(--tr);font-family:'Inter',sans-serif}
+    .copy-btn:hover{color:var(--t1);border-color:rgba(255,255,255,.28)}
+
+    /* CHIPS */
+    .chips{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;align-items:center}
+    .chip{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:999px;padding:5px 13px;font-size:.79rem;font-weight:600;transition:all var(--tr)}
+    .chip.ok{border-color:rgba(100,220,140,.38)}
+    .chip.bad{border-color:rgba(255,80,80,.45);background:rgba(255,60,60,.08)}
+    .cdot{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(0,0,0,.25);flex-shrink:0}
+    .cn{font-variant-numeric:tabular-nums}
+    .clb{color:var(--t2);font-weight:500}
+    .vbadge{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:.74rem;font-weight:700;padding:5px 12px;border-radius:999px;transition:all var(--tr)}
+    .vbadge.ok{background:rgba(35,120,65,.2);border:1px solid rgba(35,120,65,.4);color:#75d89a}
+    .vbadge.bad{background:rgba(255,80,80,.14);border:1px solid rgba(255,80,80,.4);color:#ff8585}
+
+    /* MOSAIC */
+    .mos-wrap{display:flex;flex-direction:column;align-items:center;gap:13px}
+    .mos-hint{font-size:.75rem;color:var(--t3);text-align:center}
+    .mosaic{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);width:min(380px,85vw);aspect-ratio:19/15;border:4px solid #000;border-radius:3px;overflow:hidden;box-shadow:0 16px 60px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07)}
+    .tile{cursor:pointer;position:relative;overflow:hidden;border-right:1px solid rgba(0,0,0,.4);border-bottom:1px solid rgba(0,0,0,.4);transition:filter .12s}
+    .tile::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background .14s}
+    .tile:hover::after{background:rgba(255,255,255,.2)}
+    .tile:active::after{background:rgba(255,255,255,.35)}
+    .tile.flip{animation:tflip .36s ease forwards}
+    @keyframes tflip{0%{transform:scale(1)}35%{transform:scale(.82) rotateY(90deg);opacity:.4}65%{transform:scale(.82) rotateY(-90deg);opacity:.4}100%{transform:scale(1);opacity:1}}
+    .tB{background:#0055BF}
+    .tG{background:#237841}
+    .tY{background:#FFF03A}
+    .tn{position:absolute;bottom:3px;right:4px;font-size:.52rem;font-weight:700;color:rgba(0,0,0,.22);line-height:1;pointer-events:none;user-select:none}
+    .tY .tn{color:rgba(0,0,0,.18)}
+    .legend{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+    .leg{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--t2)}
+    .ldot{width:13px;height:13px;border-radius:3px;border:1.5px solid rgba(0,0,0,.25);flex-shrink:0}
+
+    /* PRINT INFO */
+    .pstrip{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+    .psp{display:flex;flex-direction:column;align-items:center;gap:3px}
+    .psv{font-size:1.1rem;font-weight:800}
+    .psl{font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)}
+    .psdiv{width:1px;height:28px;background:var(--border)}
+    .pnote{font-size:.76rem;color:var(--t3);text-align:center;margin-top:12px}
+    .pnote strong{color:var(--t2)}
+
+    /* RULES */
+    .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}
+    .rule{display:flex;gap:10px;align-items:flex-start;padding:12px;background:var(--card2);border:1px solid var(--border);border-radius:12px}
+    .rico{font-size:1.25rem;flex-shrink:0;margin-top:1px}
+    .rbody strong{display:block;font-size:.82rem;font-weight:600;margin-bottom:2px}
+    .rbody span{font-size:.75rem;color:var(--t2)}
+
+    /* FOOTER */
+    .footer{width:100%;max-width:860px;margin-top:14px;padding:20px 26px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;backdrop-filter:blur(20px)}
+    .ftl{display:flex;flex-direction:column;gap:4px}
+    .ftt{font-size:.87rem;font-weight:700}
+    .ftlinks{display:flex;flex-direction:column;gap:2px}
+    .ftlinks a{font-size:.76rem;color:var(--t2);text-decoration:none;transition:color var(--tr);display:flex;align-items:center;gap:4px}
+    .ftlinks a:hover{color:#7ab5ff}
+    .ftr{font-size:.69rem;color:var(--t3)}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(20,25,45,.96);border:1px solid var(--border);border-radius:13px;padding:11px 22px;font-size:.86rem;font-weight:500;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,.5);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:9999;white-space:nowrap}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* PDF OVERLAY */
+    #pdfo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9998;flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(6px)}
+    #pdfo.show{display:flex}
+    .sp{width:46px;height:46px;border:4px solid rgba(255,255,255,.1);border-top-color:#0055BF;border-radius:50%;animation:spspin .85s linear infinite}
+    @keyframes spspin{to{transform:rotate(360deg)}}
+    .ot{font-size:.88rem;color:var(--t2)}
+
+    @media(max-width:480px){.card{padding:16px}.hdr-logo{height:60px}}
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hdr">
+    <img src="logo.png" alt="WRO Austria" class="hdr-logo" onerror="this.style.display='none'">
+    <div>
+      <div class="badge">🤖 WRO 2026 · RoboMission · Senior</div>
+      <h1>Mosaic Randomizer</h1>
+      <p class="hdr-sub">Offizieller Zufallsgenerator · Official Random Generator · WRO Austria 2026</p>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Controls -->
+    <div class="card">
+      <div class="clbl">🎛 Steuerung / Controls</div>
+      <div class="ctrl-grid">
+        <div class="ctrl-l">
+          <button class="btn-rnd" id="btnR" onclick="randomize()">
+            <span class="dice" id="dice">🎲</span>
+            Zufällig generieren &nbsp;/&nbsp; Randomize
+          </button>
+          <div class="fmt-row">
+            <span class="fmt-lbl">📄 Papierformat:</span>
+            <div class="fmt-btns">
+              <button class="fmt-btn on" id="fmtA4" onclick="setFmt('A4')">A4</button>
+              <button class="fmt-btn" id="fmtLt" onclick="setFmt('Letter')">Letter</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-pdf" onclick="genPDF()">
+          🖨️ PDF speichern<br><small style="font-weight:400;opacity:.75">Save as PDF</small>
+        </button>
+      </div>
+
+      <div class="code-box">
+        <span class="code-lbl">Code</span>
+        <span class="code-val" id="codeVal">SN26-————————————</span>
+        <button class="copy-btn" onclick="copyCode()" title="Kopieren / Copy">📋</button>
+      </div>
+
+      <div class="chips">
+        <div class="chip" id="chipB">
+          <div class="cdot" style="background:#0055BF"></div>
+          <span class="cn" id="cntB">0</span>
+          <span class="clb">Blau/Blue</span>
+        </div>
+        <div class="chip" id="chipG">
+          <div class="cdot" style="background:#237841"></div>
+          <span class="cn" id="cntG">0</span>
+          <span class="clb">Grün/Green</span>
+        </div>
+        <div class="chip" id="chipY">
+          <div class="cdot" style="background:#FFF03A;border-color:rgba(0,0,0,.2)"></div>
+          <span class="cn" id="cntY">0</span>
+          <span class="clb">Gelb/Yellow</span>
+        </div>
+        <div class="vbadge bad" id="vbadge">⚠️ Nicht generiert</div>
+      </div>
+    </div>
+
+    <!-- Mosaic -->
+    <div class="card">
+      <div class="clbl">🎨 Mosaik / Mosaic</div>
+      <div class="mos-wrap">
+        <p class="mos-hint">Kachel anklicken zum Ändern der Farbe &nbsp;·&nbsp; Click a tile to cycle its color</p>
+        <div class="mosaic" id="mosaic" role="grid" aria-label="Mosaic 4x3"></div>
+        <div class="legend">
+          <div class="leg"><div class="ldot" style="background:#0055BF"></div>Blau/Blue (B)</div>
+          <div class="leg"><div class="ldot" style="background:#237841"></div>Grün/Green (G)</div>
+          <div class="leg"><div class="ldot" style="background:#FFF03A;border-color:rgba(0,0,0,.2)"></div>Gelb/Yellow (Y)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Print info -->
+    <div class="card">
+      <div class="clbl">📐 Druckmasse / Print Dimensions</div>
+      <div class="pstrip">
+        <div class="psp"><div class="psv">190 mm</div><div class="psl">Breite/Width</div></div>
+        <div class="psdiv"></div>
+        <div class="psp"><div class="psv">150 mm</div><div class="psl">Höhe/Height</div></div>
+        <div class="psdiv"></div>
+        <div class="psp"><div class="psv" id="fmtDisp">A4</div><div class="psl">Papierformat</div></div>
+        <div class="psdiv"></div>
+        <div class="psp"><div class="psv">4 × 3</div><div class="psl">Raster/Grid</div></div>
+        <div class="psdiv"></div>
+        <div class="psp"><div class="psv">Schwarz</div><div class="psl">Rand/Border</div></div>
+      </div>
+      <p class="pnote">
+        Gedruckte Mosaik-Karte mit schwarzem Rand: <strong>19 cm × 15 cm (190 mm × 150 mm)</strong>.<br>
+        PDF automatisch auf das gewählte Papierformat zentriert mit exakten Druckmassen.
+      </p>
+    </div>
+
+    <!-- Rules -->
+    <div class="card">
+      <div class="clbl">📋 Regeln / Rules</div>
+      <div class="rules">
+        <div class="rule">
+          <div class="rico">🎨</div>
+          <div class="rbody"><strong>3 Farben / 3 Colors</strong><span>Blau, Grün, Gelb — je genau 4 Kacheln<br>Blue, Green, Yellow — exactly 4 tiles each</span></div>
+        </div>
+        <div class="rule">
+          <div class="rico">📏</div>
+          <div class="rbody"><strong>Raster / Grid</strong><span>4 Spalten × 3 Zeilen = 12 Kacheln<br>4 columns × 3 rows = 12 tiles</span></div>
+        </div>
+        <div class="rule">
+          <div class="rico">🔀</div>
+          <div class="rbody"><strong>Zufallsgenerator</strong><span>Gleichmäßige Zufallsverteilung<br>Balanced random distribution</span></div>
+        </div>
+        <div class="rule">
+          <div class="rico">✋</div>
+          <div class="rbody"><strong>Manuell editierbar</strong><span>Kacheln anklicken zum Ändern<br>Click tiles to change colors</span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <div class="ftl">
+      <div class="ftt">World Robot Olympiad Austria</div>
+      <div class="ftlinks">
+        <a href="https://worldrobotolympiad.at/worldrobo/" target="_blank" rel="noopener">🌐 worldrobotolympiad.at/worldrobo/</a>
+        <a href="mailto:henadii@wro-austria.at">✉️ henadii@wro-austria.at</a>
+      </div>
+    </div>
+    <div class="ftr">WRO Austria · Senior RoboMission · 2026</div>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="pdfo"><div class="sp"></div><div class="ot">PDF wird erstellt… / Generating PDF…</div></div>
+
+<script>
+const COLORS=['B','G','Y'];
+const TRGB={B:[0,85,191],G:[35,120,65],Y:[255,240,58]};
+const TLBL={B:'Blau',G:'Grün',Y:'Gelb'};
+const N=12;
+let state=Array(N).fill('B');
+let fmt='A4';
+
+function init(){
+  const g=document.getElementById('mosaic');
+  g.innerHTML='';
+  for(let i=0;i<N;i++){
+    const el=document.createElement('div');
+    el.className='tile tB';
+    el.id='T'+i;
+    el.setAttribute('role','gridcell');
+    el.setAttribute('tabindex','0');
+    el.innerHTML='<span class="tn">'+(i+1)+'</span>';
+    el.addEventListener('click',()=>cycle(i));
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();cycle(i)}});
+    g.appendChild(el);
+  }
+  randomize();
+}
+
+function randomize(){
+  let pool=[...COLORS,...COLORS,...COLORS,...COLORS];
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  state=pool;
+  render(true);
+  const btn=document.getElementById('btnR');
+  const d=document.getElementById('dice');
+  btn.classList.add('rolling');
+  d.textContent=['🎲','🎯','⚡','🌀'][Math.floor(Math.random()*4)];
+  setTimeout(()=>{btn.classList.remove('rolling');d.textContent='🎲'},500);
+}
+
+function cycle(i){
+  const ci=COLORS.indexOf(state[i]);
+  state[i]=COLORS[(ci+1)%COLORS.length];
+  render(false);
+}
+
+function render(anim){
+  for(let i=0;i<N;i++){
+    const el=document.getElementById('T'+i);
+    const c=state[i];
+    el.className='tile t'+c;
+    el.setAttribute('aria-label','Kachel '+(i+1)+': '+TLBL[c]);
+    el.innerHTML='<span class="tn">'+(i+1)+'</span>';
+    if(anim){
+      el.classList.remove('flip');
+      void el.offsetWidth;
+      setTimeout(()=>{el.classList.add('flip');setTimeout(()=>el.classList.remove('flip'),400)},i*28);
+    }
+  }
+  updateUI();
+}
+
+function updateUI(){
+  document.getElementById('codeVal').textContent='SN26-'+state.join('');
+  const cnt={B:0,G:0,Y:0};
+  state.forEach(c=>cnt[c]++);
+  ['B','G','Y'].forEach(c=>{
+    document.getElementById('cnt'+c).textContent=cnt[c];
+    const ch=document.getElementById('chip'+c);
+    ch.classList.toggle('ok',cnt[c]===4);
+    ch.classList.toggle('bad',cnt[c]!==4);
+  });
+  const ok=cnt.B===4&&cnt.G===4&&cnt.Y===4;
+  const vb=document.getElementById('vbadge');
+  vb.textContent=ok?'✅ Gültig / Valid':'⚠️ Ungültig / Invalid';
+  vb.className='vbadge '+(ok?'ok':'bad');
+}
+
+function setFmt(f){
+  fmt=f;
+  document.getElementById('fmtA4').classList.toggle('on',f==='A4');
+  document.getElementById('fmtLt').classList.toggle('on',f==='Letter');
+  document.getElementById('fmtDisp').textContent=f;
+}
+
+function copyCode(){
+  const code=document.getElementById('codeVal').textContent;
+  navigator.clipboard.writeText(code).then(()=>showToast('✅ Kopiert: '+code),()=>showToast('Code: '+code));
+}
+
+let _tt;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+async function genPDF(){
+  const cnt={B:0,G:0,Y:0};
+  state.forEach(c=>cnt[c]++);
+  if(cnt.B!==4||cnt.G!==4||cnt.Y!==4){
+    showToast('⚠️ Ungueltig! Genau 4 x Blau + 4 x Gruen + 4 x Gelb erforderlich.');
+    return;
+  }
+  const ov=document.getElementById('pdfo');
+  ov.classList.add('show');
+  try{
+    await new Promise(r=>setTimeout(r,60));
+    const{jsPDF}=window.jspdf;
+    const PW=fmt==='A4'?210:216;
+    const PH=fmt==='A4'?297:279;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:[PW,PH]});
+
+    /* === MOSAIC: EXACTLY 190mm x 150mm === */
+    const MW=190, MH=150;
+    const COLS_N=4, ROWS_N=3;
+    const CW=MW/COLS_N;  /* 47.5mm */
+    const CH=MH/ROWS_N;  /* 50.0mm */
+    const OX=(PW-MW)/2;  /* centered horizontally */
+    const OY=52;         /* top margin */
+
+    /* Header bar */
+    doc.setFillColor(8,13,28);
+    doc.rect(0,0,PW,42,'F');
+    doc.setTextColor(238,242,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(15);
+    doc.text('WRO Austria 2026',PW/2,14,{align:'center'});
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.text('Senior RoboMission - Mosaic Randomizer',PW/2,23,{align:'center'});
+    doc.setFontSize(7.5);
+    doc.setTextColor(120,160,220);
+    doc.text('worldrobotolympiad.at/worldrobo/  |  henadii@wro-austria.at',PW/2,31,{align:'center'});
+    doc.setDrawColor(40,50,80);
+    doc.setLineWidth(0.4);
+    doc.line(0,42,PW,42);
+
+    /* Code line */
+    const code='SN26-'+state.join('');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(80,80,100);
+    doc.text('Randomisierungscode / Randomization Code:',OX,OY-12);
+    doc.setFont('courier','bold');
+    doc.setFontSize(15);
+    doc.setTextColor(0,55,150);
+    doc.text(code,OX,OY-4);
+
+    /* Black outer border */
+    doc.setFillColor(0,0,0);
+    doc.rect(OX-0.8,OY-0.8,MW+1.6,MH+1.6,'F');
+
+    /* Tiles */
+    for(let row=0;row<ROWS_N;row++){
+      for(let col=0;col<COLS_N;col++){
+        const idx=row*COLS_N+col;
+        const c=state[idx];
+        const rgb=TRGB[c];
+        const tx=OX+col*CW;
+        const ty=OY+row*CH;
+        doc.setFillColor(rgb[0],rgb[1],rgb[2]);
+        doc.rect(tx,ty,CW,CH,'F');
+        doc.setDrawColor(0,0,0);
+        doc.setLineWidth(0.25);
+        doc.rect(tx,ty,CW,CH,'S');
+      }
+    }
+
+    /* Strong outer border on top */
+    doc.setDrawColor(0,0,0);
+    doc.setLineWidth(1.0);
+    doc.rect(OX,OY,MW,MH,'S');
+
+    /* Dimension annotations */
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    doc.setTextColor(70,70,70);
+    doc.setDrawColor(100,100,100);
+    doc.setLineWidth(0.25);
+
+    /* Width annotation below */
+    const AY=OY+MH+5;
+    doc.line(OX,AY+2,OX+MW,AY+2);
+    doc.line(OX,AY,OX,AY+4);
+    doc.line(OX+MW,AY,OX+MW,AY+4);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(7.5);
+    doc.text('190 mm / 19 cm',PW/2,AY+7,{align:'center'});
+
+    /* Height annotation right */
+    const AX=OX+MW+4;
+    doc.setFont('helvetica','normal');
+    doc.setLineWidth(0.25);
+    doc.line(AX+2,OY,AX+2,OY+MH);
+    doc.line(AX,OY,AX+4,OY);
+    doc.line(AX,OY+MH,AX+4,OY+MH);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(7.5);
+    doc.text('150 mm / 15 cm',AX+9,OY+MH/2,{align:'center',angle:90});
+
+    /* Color summary */
+    const SY=AY+16;
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(30,30,30);
+    doc.text('Farbverteilung / Color Distribution:',OX,SY);
+    const cntS={B:0,G:0,Y:0};
+    state.forEach(c=>cntS[c]++);
+    const clrs=[
+      {k:'B',l:'Blau/Blue',rgb:[0,85,191],tc:[0,55,150]},
+      {k:'G',l:'Gruen/Green',rgb:[35,120,65],tc:[20,90,40]},
+      {k:'Y',l:'Gelb/Yellow',rgb:[255,240,58],tc:[120,100,0]}
+    ];
+    let cx=OX;
+    clrs.forEach(cl=>{
+      doc.setFillColor(...cl.rgb);
+      doc.rect(cx,SY+2.5,7,5,'F');
+      doc.setDrawColor(0,0,0);
+      doc.setLineWidth(0.2);
+      doc.rect(cx,SY+2.5,7,5,'S');
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...cl.tc);
+      doc.text(cl.l+': '+cntS[cl.k]+' x',cx+9,SY+6.5);
+      cx+=58;
+    });
+
+    /* Footer */
+    const FY=PH-10;
+    doc.setDrawColor(200,200,200);
+    doc.setLineWidth(0.3);
+    doc.line(15,FY-3.5,PW-15,FY-3.5);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(140,140,140);
+    doc.text('WRO Austria 2026 · Senior RoboMission · worldrobotolympiad.at/worldrobo/ · henadii@wro-austria.at',PW/2,FY,{align:'center'});
+
+    doc.save('WRO-Austria-2026-Senior-'+code+'-'+fmt+'.pdf');
+    showToast('✅ PDF gespeichert: '+code+' ('+fmt+')');
+  }catch(e){
+    console.error(e);
+    showToast('❌ PDF-Fehler: '+e.message);
+  }finally{
+    document.getElementById('pdfo').classList.remove('show');
+  }
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
+
