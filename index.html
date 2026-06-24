@@ -111,8 +111,9 @@
     .tB{background:#0055BF}
     .tG{background:#237841}
     .tY{background:#FFF03A}
+    .tW{background:#FFFFFF}
     .tn{position:absolute;bottom:3px;right:4px;font-size:.52rem;font-weight:700;color:rgba(0,0,0,.22);line-height:1;pointer-events:none;user-select:none}
-    .tY .tn{color:rgba(0,0,0,.18)}
+    .tY .tn, .tW .tn{color:rgba(0,0,0,.18)}
     .legend{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
     .leg{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--t2)}
     .ldot{width:13px;height:13px;border-radius:3px;border:1.5px solid rgba(0,0,0,.25);flex-shrink:0}
@@ -160,7 +161,7 @@
 <div class="page">
 
   <header class="hdr">
-    <img src="logo.png" alt="WRO Austria" class="hdr-logo" onerror="this.style.display='none'">
+    <img src="logo-white.png" alt="WRO Austria" class="hdr-logo" onerror="this.style.display='none'">
     <div>
       <div class="badge">🤖 WRO 2026 · RoboMission · Senior</div>
       <h1>Mosaic Randomizer</h1>
@@ -214,6 +215,11 @@
           <span class="cn" id="cntY">0</span>
           <span class="clb">Gelb/Yellow</span>
         </div>
+        <div class="chip" id="chipW">
+          <div class="cdot" style="background:#FFFFFF;border-color:rgba(0,0,0,.2)"></div>
+          <span class="cn" id="cntW">0</span>
+          <span class="clb">Weiß/White</span>
+        </div>
         <div class="vbadge bad" id="vbadge">⚠️ Nicht generiert</div>
       </div>
     </div>
@@ -228,6 +234,7 @@
           <div class="leg"><div class="ldot" style="background:#0055BF"></div>Blau/Blue (B)</div>
           <div class="leg"><div class="ldot" style="background:#237841"></div>Grün/Green (G)</div>
           <div class="leg"><div class="ldot" style="background:#FFF03A;border-color:rgba(0,0,0,.2)"></div>Gelb/Yellow (Y)</div>
+          <div class="leg"><div class="ldot" style="background:#FFFFFF;border-color:rgba(0,0,0,.2)"></div>Weiß/White (W)</div>
         </div>
       </div>
     </div>
@@ -258,7 +265,7 @@
       <div class="rules">
         <div class="rule">
           <div class="rico">🎨</div>
-          <div class="rbody"><strong>3 Farben / 3 Colors</strong><span>Blau, Grün, Gelb — je genau 4 Kacheln<br>Blue, Green, Yellow — exactly 4 tiles each</span></div>
+          <div class="rbody"><strong>4 Farben / 4 Colors</strong><span>Blau, Grün, Gelb, Weiß — je genau 3 Kacheln<br>Blue, Green, Yellow, White — exactly 3 tiles each</span></div>
         </div>
         <div class="rule">
           <div class="rico">📏</div>
@@ -294,9 +301,9 @@
 <div id="pdfo"><div class="sp"></div><div class="ot">PDF wird erstellt… / Generating PDF…</div></div>
 
 <script>
-const COLORS=['B','G','Y'];
-const TRGB={B:[0,85,191],G:[35,120,65],Y:[255,240,58]};
-const TLBL={B:'Blau',G:'Grün',Y:'Gelb'};
+const COLORS=['B','G','Y','W'];
+const TRGB={B:[0,85,191],G:[35,120,65],Y:[255,240,58],W:[255,255,255]};
+const TLBL={B:'Blau',G:'Grün',Y:'Gelb',W:'Weiß'};
 const N=12;
 let state=Array(N).fill('B');
 let fmt='A4';
@@ -319,7 +326,7 @@ function init(){
 }
 
 function randomize(){
-  let pool=[...COLORS,...COLORS,...COLORS,...COLORS];
+  let pool=[...Array(3).fill('B'),...Array(3).fill('G'),...Array(3).fill('Y'),...Array(3).fill('W')];
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
   state=pool;
   render(true);
@@ -354,15 +361,15 @@ function render(anim){
 
 function updateUI(){
   document.getElementById('codeVal').textContent='SN26-'+state.join('');
-  const cnt={B:0,G:0,Y:0};
+  const cnt={B:0,G:0,Y:0,W:0};
   state.forEach(c=>cnt[c]++);
-  ['B','G','Y'].forEach(c=>{
+  ['B','G','Y','W'].forEach(c=>{
     document.getElementById('cnt'+c).textContent=cnt[c];
     const ch=document.getElementById('chip'+c);
-    ch.classList.toggle('ok',cnt[c]===4);
-    ch.classList.toggle('bad',cnt[c]!==4);
+    ch.classList.toggle('ok',cnt[c]===3);
+    ch.classList.toggle('bad',cnt[c]!==3);
   });
-  const ok=cnt.B===4&&cnt.G===4&&cnt.Y===4;
+  const ok=cnt.B===3&&cnt.G===3&&cnt.Y===3&&cnt.W===3;
   const vb=document.getElementById('vbadge');
   vb.textContent=ok?'✅ Gültig / Valid':'⚠️ Ungültig / Invalid';
   vb.className='vbadge '+(ok?'ok':'bad');
@@ -390,10 +397,10 @@ function showToast(msg){
 }
 
 async function genPDF(){
-  const cnt={B:0,G:0,Y:0};
+  const cnt={B:0,G:0,Y:0,W:0};
   state.forEach(c=>cnt[c]++);
-  if(cnt.B!==4||cnt.G!==4||cnt.Y!==4){
-    showToast('⚠️ Ungueltig! Genau 4 x Blau + 4 x Gruen + 4 x Gelb erforderlich.');
+  if(cnt.B!==3||cnt.G!==3||cnt.Y!==3||cnt.W!==3){
+    showToast('⚠️ Ungueltig! Genau 3 Kacheln pro Farbe (Blau, Gruen, Gelb, Weiss) erforderlich.');
     return;
   }
   const ov=document.getElementById('pdfo');
@@ -408,42 +415,38 @@ async function genPDF(){
     /* === MOSAIC: EXACTLY 190mm x 150mm === */
     const MW=190, MH=150;
     const COLS_N=4, ROWS_N=3;
-    const CW=MW/COLS_N;  /* 47.5mm */
-    const CH=MH/ROWS_N;  /* 50.0mm */
+    const TILE_W=40, TILE_H=40;
+    const GAP=10;
     const OX=(PW-MW)/2;  /* centered horizontally */
     const OY=52;         /* top margin */
 
     /* Header bar */
     doc.setFillColor(8,13,28);
-    doc.rect(0,0,PW,42,'F');
+    doc.rect(0,0,PW,36,'F');
     doc.setTextColor(238,242,255);
     doc.setFont('helvetica','bold');
     doc.setFontSize(15);
-    doc.text('WRO Austria 2026',PW/2,14,{align:'center'});
+    doc.text('WRO Austria 2026',PW/2,12,{align:'center'});
     doc.setFont('helvetica','normal');
     doc.setFontSize(10);
-    doc.text('Senior RoboMission - Mosaic Randomizer',PW/2,23,{align:'center'});
+    doc.text('Senior RoboMission - Mosaic Randomizer',PW/2,21,{align:'center'});
     doc.setFontSize(7.5);
     doc.setTextColor(120,160,220);
-    doc.text('worldrobotolympiad.at/worldrobo/  |  henadii@wro-austria.at',PW/2,31,{align:'center'});
+    doc.text('worldrobotolympiad.at/worldrobo/  |  henadii@wro-austria.at',PW/2,29,{align:'center'});
     doc.setDrawColor(40,50,80);
     doc.setLineWidth(0.4);
-    doc.line(0,42,PW,42);
+    doc.line(0,36,PW,36);
 
-    /* Code line */
     const code='SN26-'+state.join('');
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(8.5);
-    doc.setTextColor(80,80,100);
-    doc.text('Randomisierungscode / Randomization Code:',OX,OY-12);
-    doc.setFont('courier','bold');
-    doc.setFontSize(15);
-    doc.setTextColor(0,55,150);
-    doc.text(code,OX,OY-4);
 
-    /* Black outer border */
-    doc.setFillColor(0,0,0);
-    doc.rect(OX-0.8,OY-0.8,MW+1.6,MH+1.6,'F');
+    /* Mosaic White Background (the gaps) */
+    doc.setFillColor(255,255,255);
+    doc.rect(OX,OY,MW,MH,'F');
+
+    /* Thin black outer border for the whole 190x150 area */
+    doc.setDrawColor(0,0,0);
+    doc.setLineWidth(0.5);
+    doc.rect(OX,OY,MW,MH,'S');
 
     /* Tiles */
     for(let row=0;row<ROWS_N;row++){
@@ -451,20 +454,27 @@ async function genPDF(){
         const idx=row*COLS_N+col;
         const c=state[idx];
         const rgb=TRGB[c];
-        const tx=OX+col*CW;
-        const ty=OY+row*CH;
+        const tx=OX + col*(TILE_W+GAP);
+        const ty=OY + row*(TILE_H+GAP);
         doc.setFillColor(rgb[0],rgb[1],rgb[2]);
-        doc.rect(tx,ty,CW,CH,'F');
+        doc.rect(tx,ty,TILE_W,TILE_H,'F');
         doc.setDrawColor(0,0,0);
         doc.setLineWidth(0.25);
-        doc.rect(tx,ty,CW,CH,'S');
+        doc.rect(tx,ty,TILE_W,TILE_H,'S');
       }
     }
 
-    /* Strong outer border on top */
-    doc.setDrawColor(0,0,0);
-    doc.setLineWidth(1.0);
-    doc.rect(OX,OY,MW,MH,'S');
+    /* Print the Code inside the first horizontal white gap */
+    /* First gap is at Y = OY + 40, Height = 10. Center of gap is roughly OY + 46.5 */
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(11);
+    doc.setTextColor(0,0,0);
+    doc.text('Code: '+code, OX + 40, OY + 46.5);
+
+    /* Thick black line at the bottom */
+    /* Starts at Y = OY + 3*40 + 2*10 = OY + 140. Height = 10. Width = 190 */
+    doc.setFillColor(0,0,0);
+    doc.rect(OX, OY + 140, 190, 10, 'F');
 
     /* Dimension annotations */
     doc.setFont('helvetica','normal');
@@ -499,12 +509,13 @@ async function genPDF(){
     doc.setFontSize(8.5);
     doc.setTextColor(30,30,30);
     doc.text('Farbverteilung / Color Distribution:',OX,SY);
-    const cntS={B:0,G:0,Y:0};
+    const cntS={B:0,G:0,Y:0,W:0};
     state.forEach(c=>cntS[c]++);
     const clrs=[
-      {k:'B',l:'Blau/Blue',rgb:[0,85,191],tc:[0,55,150]},
-      {k:'G',l:'Gruen/Green',rgb:[35,120,65],tc:[20,90,40]},
-      {k:'Y',l:'Gelb/Yellow',rgb:[255,240,58],tc:[120,100,0]}
+      {k:'B',l:'Blau',rgb:[0,85,191],tc:[0,55,150]},
+      {k:'G',l:'Gruen',rgb:[35,120,65],tc:[20,90,40]},
+      {k:'Y',l:'Gelb',rgb:[255,240,58],tc:[120,100,0]},
+      {k:'W',l:'Weiss',rgb:[255,255,255],tc:[80,80,80]}
     ];
     let cx=OX;
     clrs.forEach(cl=>{
@@ -517,7 +528,7 @@ async function genPDF(){
       doc.setFontSize(8);
       doc.setTextColor(...cl.tc);
       doc.text(cl.l+': '+cntS[cl.k]+' x',cx+9,SY+6.5);
-      cx+=58;
+      cx+=45;
     });
 
     /* Footer */
