@@ -289,7 +289,7 @@
       <div class="ftt">World Robot Olympiad Austria</div>
       <div class="ftlinks">
         <a href="https://worldrobotolympiad.at/worldrobo/" target="_blank" rel="noopener">🌐 worldrobotolympiad.at/worldrobo/</a>
-        <a href="mailto:henadii@wro-austria.at">✉️ henadii@wro-austria.at</a>
+        <a href="mailto:info@wro-austria.at">✉️ info@wro-austria.at</a>
       </div>
     </div>
     <div class="ftr">WRO Austria · Senior RoboMission · 2026</div>
@@ -432,7 +432,7 @@ async function genPDF(){
     doc.text('Senior RoboMission - Mosaic Randomizer',PW/2,21,{align:'center'});
     doc.setFontSize(7.5);
     doc.setTextColor(120,160,220);
-    doc.text('worldrobotolympiad.at/worldrobo/  |  henadii@wro-austria.at',PW/2,29,{align:'center'});
+    doc.text('worldrobotolympiad.at/worldrobo/  |  info@wro-austria.at',PW/2,29,{align:'center'});
     doc.setDrawColor(40,50,80);
     doc.setLineWidth(0.4);
     doc.line(0,36,PW,36);
@@ -539,7 +539,7 @@ async function genPDF(){
     doc.setFont('helvetica','normal');
     doc.setFontSize(6.5);
     doc.setTextColor(140,140,140);
-    doc.text('WRO Austria 2026 · Senior RoboMission · worldrobotolympiad.at/worldrobo/ · henadii@wro-austria.at',PW/2,FY,{align:'center'});
+    doc.text('WRO Austria 2026 · Senior RoboMission · worldrobotolympiad.at/worldrobo/ · info@wro-austria.at',PW/2,FY,{align:'center'});
 
     doc.save('WRO-Austria-2026-Senior-'+code+'-'+fmt+'.pdf');
     showToast('✅ PDF gespeichert: '+code+' ('+fmt+')');
