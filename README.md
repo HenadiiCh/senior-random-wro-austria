@@ -19,9 +19,9 @@ This repository contains the official web-based random generator for the **World
 
 ## ✨ Features / Основні можливості
 
-- 🎲 **Balanced Randomization / Збалансований генератор**: Automatically creates valid distributions containing exactly 3 tiles of each color (**Blue**, **Green**, **Yellow**, **White**).
+- 🎲 **Balanced Randomization / Збалансований генератор**: Automatically creates valid distributions containing up to a maximum of 6 tiles per color (**Blue**, **Green**, **Yellow**, **White**).
 - ✋ **Interactive Editing / Ручне налаштування**: Click any tile on the 4×3 grid to manually cycle through colors and test specific competition scenarios.
-- 🖨️ **Precision PDF Export / Експорт у PDF**: Generates exact competition dimensions (**190 mm × 150 mm** with a border line) automatically centered on **A4** or **Letter** paper formats.
+- 🖨️ **Precision PDF Export / Експорт у PDF**: Generates exact competition dimensions (**190 mm × 150 mm**) with a dedicated cut line (Schnittlinie / обводка для вирізання) and corner crop marks, automatically centered on **A4** or **Letter** paper formats.
 - ⚡ **Zero Dependencies / Робота без сервера**: Pure HTML, CSS, and vanilla JavaScript using `jsPDF`. Runs completely client-side in any modern web browser without requiring a backend.
 - 📋 **Live Validation & Code Generation / Валідація**: Automatically validates rule adherence and generates a unique round verification code (e.g., `SN26-BGYW...`).
 
@@ -47,8 +47,8 @@ cd senior-random
 ## 📋 Competition Rules Summary / Коротко про правила
 
 The mosaic grid consists of **12 tiles** arranged in **4 columns × 3 rows**:
-1. **Colors**: Exactly **3 Blue**, **3 Green**, **3 Yellow**, and **3 White** tiles per round.
-2. **Dimensions**: The printed physical mat must measure exactly **19 cm × 15 cm** (190 mm × 150 mm).
+1. **Colors**: A maximum of **6 tiles per color** (**Blue**, **Green**, **Yellow**, **White**) per round.
+2. **Dimensions & Cutting**: The printed physical mat must measure exactly **19 cm × 15 cm** (190 mm × 150 mm). The exported PDF includes special cut lines and crop marks for effortless precision cutting.
 3. **Official Documentation**: Full rulebooks and task descriptions can be found in the `rools/` folder:
    - `WRO-2026-RoboMission-Senior-Game-Rules.pdf`
    - `wro2026-rm-senior-aufgabenstellung-wro-austria.pdf`

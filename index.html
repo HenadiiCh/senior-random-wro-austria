@@ -254,8 +254,8 @@
         <div class="psp"><div class="psv">Schwarz</div><div class="psl">Rand/Border</div></div>
       </div>
       <p class="pnote">
-        Gedruckte Mosaik-Karte mit schwarzem Rand: <strong>19 cm × 15 cm (190 mm × 150 mm)</strong>.<br>
-        PDF automatisch auf das gewählte Papierformat zentriert mit exakten Druckmassen.
+        Gedruckte Mosaik-Karte mit exakter Schnittlinie: <strong>19 cm × 15 cm (190 mm × 150 mm)</strong>.<br>
+        PDF enthält eine spezielle Schnittlinie (Obwodka) und Schnittmarken zum perfekten Ausschneiden.
       </p>
     </div>
 
@@ -265,7 +265,7 @@
       <div class="rules">
         <div class="rule">
           <div class="rico">🎨</div>
-          <div class="rbody"><strong>4 Farben / 4 Colors</strong><span>Blau, Grün, Gelb, Weiß — je genau 3 Kacheln<br>Blue, Green, Yellow, White — exactly 3 tiles each</span></div>
+          <div class="rbody"><strong>4 Farben / 4 Colors</strong><span>Blau, Grün, Gelb, Weiß — max. 6 Kacheln<br>Blue, Green, Yellow, White — max. 6 tiles each</span></div>
         </div>
         <div class="rule">
           <div class="rico">📏</div>
@@ -326,9 +326,17 @@ function init(){
 }
 
 function randomize(){
-  let pool=[...Array(3).fill('B'),...Array(3).fill('G'),...Array(3).fill('Y'),...Array(3).fill('W')];
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
-  state=pool;
+  let pool, cnt;
+  do {
+    pool = [];
+    cnt = {B:0, G:0, Y:0, W:0};
+    for(let i=0; i<N; i++){
+      const c = COLORS[Math.floor(Math.random()*4)];
+      pool.push(c);
+      cnt[c]++;
+    }
+  } while(cnt.B > 6 || cnt.G > 6 || cnt.Y > 6 || cnt.W > 6);
+  state = pool;
   render(true);
   const btn=document.getElementById('btnR');
   const d=document.getElementById('dice');
@@ -366,12 +374,12 @@ function updateUI(){
   ['B','G','Y','W'].forEach(c=>{
     document.getElementById('cnt'+c).textContent=cnt[c];
     const ch=document.getElementById('chip'+c);
-    ch.classList.toggle('ok',cnt[c]===3);
-    ch.classList.toggle('bad',cnt[c]!==3);
+    ch.classList.toggle('ok',cnt[c]<=6);
+    ch.classList.toggle('bad',cnt[c]>6);
   });
-  const ok=cnt.B===3&&cnt.G===3&&cnt.Y===3&&cnt.W===3;
+  const ok=cnt.B<=6&&cnt.G<=6&&cnt.Y<=6&&cnt.W<=6;
   const vb=document.getElementById('vbadge');
-  vb.textContent=ok?'✅ Gültig / Valid':'⚠️ Ungültig / Invalid';
+  vb.textContent=ok?'✅ Gültig / Valid':'⚠️ Ungültig / Invalid (max. 6)';
   vb.className='vbadge '+(ok?'ok':'bad');
 }
 
@@ -399,8 +407,8 @@ function showToast(msg){
 async function genPDF(){
   const cnt={B:0,G:0,Y:0,W:0};
   state.forEach(c=>cnt[c]++);
-  if(cnt.B!==3||cnt.G!==3||cnt.Y!==3||cnt.W!==3){
-    showToast('⚠️ Ungueltig! Genau 3 Kacheln pro Farbe (Blau, Gruen, Gelb, Weiss) erforderlich.');
+  if(cnt.B>6||cnt.G>6||cnt.Y>6||cnt.W>6){
+    showToast('⚠️ Ungueltig! Maximal 6 Kacheln pro Farbe erlaubt.');
     return;
   }
   const ov=document.getElementById('pdfo');
@@ -443,10 +451,33 @@ async function genPDF(){
     doc.setFillColor(255,255,255);
     doc.rect(OX,OY,MW,MH,'F');
 
-    /* Thin black outer border for the whole 190x150 area */
+    /* Crop marks (Schnittmarken) extending outwards from corners */
     doc.setDrawColor(0,0,0);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(0.35);
+    const mLen = 6, mGap = 1.5;
+    /* Top-Left */
+    doc.line(OX - mGap - mLen, OY, OX - mGap, OY);
+    doc.line(OX, OY - mGap - mLen, OX, OY - mGap);
+    /* Top-Right */
+    doc.line(OX + MW + mGap, OY, OX + MW + mGap + mLen, OY);
+    doc.line(OX + MW, OY - mGap - mLen, OX + MW, OY - mGap);
+    /* Bottom-Left */
+    doc.line(OX - mGap - mLen, OY + MH, OX - mGap, OY + MH);
+    doc.line(OX, OY + MH + mGap, OX, OY + MH + mGap + mLen);
+    /* Bottom-Right */
+    doc.line(OX + MW + mGap, OY + MH, OX + MW + mGap + mLen, OY + MH);
+    doc.line(OX + MW, OY + MH + mGap, OX + MW, OY + MH + mGap + mLen);
+
+    /* Cutting Outline (Schnittlinie / Obwodka) around the 190x150 area */
+    doc.setDrawColor(0,0,0);
+    doc.setLineWidth(0.65);
     doc.rect(OX,OY,MW,MH,'S');
+
+    /* Cut label above top border */
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(60,60,60);
+    doc.text('✂   SCHNITTLINIE / CUT LINE — exakt 190 × 150 mm an dieser Linie ausschneiden   ✂', PW/2, OY - 3.5, {align:'center'});
 
     /* Tiles */
     for(let row=0;row<ROWS_N;row++){
