@@ -468,16 +468,32 @@ async function genPDF(){
     doc.line(OX + MW + mGap, OY + MH, OX + MW + mGap + mLen, OY + MH);
     doc.line(OX + MW, OY + MH + mGap, OX + MW, OY + MH + mGap + mLen);
 
-    /* Cutting Outline (Schnittlinie / Obwodka) around the 190x150 area */
+    /* Dashed Cutting Outline (Schnittlinie punktyrom) around the 190x150 area */
     doc.setDrawColor(0,0,0);
-    doc.setLineWidth(0.65);
+    doc.setLineWidth(0.55);
+    if(doc.setLineDashPattern) doc.setLineDashPattern([3.5, 2.5], 0);
     doc.rect(OX,OY,MW,MH,'S');
+    if(doc.setLineDashPattern) doc.setLineDashPattern([], 0);
+
+    /* Vector Scissor Icons on top border indicating cutting line */
+    doc.setLineWidth(0.35);
+    const drawScissor = (x, y, flip) => {
+      const s = flip ? -1 : 1;
+      doc.circle(x - s*3.5, y - 2.2, 1.2, 'S');
+      doc.circle(x - s*3.5, y + 2.2, 1.2, 'S');
+      doc.line(x - s*2.3, y - 2.2, x + s*4, y);
+      doc.line(x - s*2.3, y + 2.2, x + s*4, y);
+      doc.setFillColor(0,0,0);
+      doc.circle(x, y, 0.35, 'F');
+    };
+    drawScissor(OX + 16, OY, false);      /* left scissor facing right */
+    drawScissor(OX + MW - 16, OY, true);  /* right scissor facing left */
 
     /* Cut label above top border */
     doc.setFont('helvetica','bold');
     doc.setFontSize(8);
-    doc.setTextColor(60,60,60);
-    doc.text('✂   SCHNITTLINIE / CUT LINE — exakt 190 × 150 mm an dieser Linie ausschneiden   ✂', PW/2, OY - 3.5, {align:'center'});
+    doc.setTextColor(50,50,50);
+    doc.text('✂   SCHNITTLINIE / CUT LINE (PUNKTYR) — exakt 190 × 150 mm an dieser Linie ausschneiden   ✂', PW/2, OY - 3.5, {align:'center'});
 
     /* Tiles */
     for(let row=0;row<ROWS_N;row++){

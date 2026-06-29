@@ -1,6 +1,6 @@
 # 🤖 WRO Austria 2026 — Senior RoboMission Randomizer
 
-[![Deploy to GitHub Pages]([https://github.com/WRO-Austria/senior-random/actions/workflows/deploy.yml/badge.svg)](https://github.com/WRO-Austria/senior-random/actions/workflows/deploy.yml](https://henadiich.github.io/senior-random-wro-austria/))
+[![Deploy to GitHub Pages](https://github.com/HenadiiCh/senior-random-wro-austria/actions/workflows/deploy.yml/badge.svg)](https://henadiich.github.io/senior-random-wro-austria/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![WRO Austria](https://img.shields.io/badge/WRO-Austria%202026-0055BF?style=flat&logo=robotics)](https://worldrobotolympiad.at/)
 
